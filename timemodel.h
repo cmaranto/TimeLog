@@ -32,6 +32,8 @@ public:
 
     void addTime(const TimeEntry &time);
     void editTime(const TimeEntry &time);
+    void removeTime(const TimeEntry &time);
+    TimeEntry timeAt(int row);
     int findTime(int id) const;
     void clear();
 

@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     ui->listView->setModel(&TimeModel::instance());
+    ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+
 
     m_database.setDatabaseName("./log");
     if(!m_database.open()){
@@ -17,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     connect(ui->calendarWidget,SIGNAL(selectionChanged()),this,SLOT(getTimes()));
+    connect(ui->listView,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(onContextMenu(QPoint)));
 
     ui->manualTime->setDateTime(QDateTime::currentDateTime());
     getTimes();
@@ -71,6 +74,23 @@ bool MainWindow::addOutEntry()
     return res;
 }
 
+bool MainWindow::removeTime(const TimeEntry &te)
+{
+    if(!te.id)return false;
+
+    QSqlQuery query;
+
+    query.prepare("DELETE FROM TIMES WHERE id = :id");
+    query.bindValue(":id",te.id);
+    bool res =query.exec();
+    if(!res){
+        qDebug() << query.lastError();
+    }else{
+        TimeModel::instance().removeTime(te);
+    }
+    return res;
+}
+
 void MainWindow::getTimes()
 {
     QSqlQuery query;
@@ -112,6 +132,21 @@ void MainWindow::getTimes()
 
 
     ui->inOutButton->setText(!m_currEntry.id || m_currEntry.stopTime ? "IN" : "OUT");
+}
+
+void MainWindow::onContextMenu(QPoint p)
+{
+    QMenu menu(this);
+
+    QAction *removeAction = menu.addAction("Remove");
+
+    if(menu.exec(ui->listView->mapToGlobal(p)) == removeAction){
+        TimeEntry te = TimeModel::instance().timeAt(ui->listView->currentIndex().row());
+
+
+        qDebug() << "remove: " << te.toString();
+        removeTime(te);
+    }
 }
 
 

@@ -9,6 +9,7 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QInputDialog>
+#include <QMenu>
 
 #include "timemodel.h"
 #include "exportdialog.h"
@@ -27,9 +28,11 @@ public:
 
     bool addInEntry();
     bool addOutEntry();
+    bool removeTime(const TimeEntry &te);
 
 public slots:
     void getTimes();
+    void onContextMenu(QPoint p);
 
 private slots:
     void on_inOutButton_released();

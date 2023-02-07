@@ -41,6 +41,21 @@ void TimeModel::editTime(const TimeEntry &time)
     }
 }
 
+void TimeModel::removeTime(const TimeEntry &time)
+{
+    int row = findTime(time.id);
+    if(row){
+        beginRemoveRows(QModelIndex(),row,row);
+        m_times.removeAt(row);
+        endRemoveRows();
+    }
+}
+
+TimeEntry TimeModel::timeAt(int row)
+{
+    return m_times.at(row);
+}
+
 int TimeModel::findTime(int id) const
 {
     for(int i = 0; i < m_times.size(); ++i){
